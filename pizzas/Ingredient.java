@@ -77,4 +77,49 @@ public class Ingredient {
         }
         this.prix = prix;
     }
+
+    /**
+     * Retourne une représentation textuelle de l'ingrédient,
+     * comprenant son nom et son prix.
+     *
+     * @return une chaîne représentant l'ingrédient
+     */
+    @Override
+    public String toString() {
+        return "Ingrédient{" + nom + ", prix=" + prix + "}";
+    }
+
+    /**
+     * Compare cet ingrédient avec un autre objet.
+     * Deux ingrédients sont considérés comme égaux si leur nom est identique.
+     *
+     * @param obj l'objet à comparer avec cet ingrédient
+     * @return {@code true} si les deux ingrédients ont le même nom,
+     *         {@code false} sinon
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        return this.nom.equals(((Ingredient) obj).nom);
+    }
+
+    /**
+     * Retourne le code de hachage de l'ingrédient.
+     * Le code de hachage est basé uniquement sur le nom.
+     *
+     * @return le code de hachage de cet ingrédient
+     */
+    @Override
+    public int hashCode() {
+        return nom.hashCode();
+    }
+
 }
