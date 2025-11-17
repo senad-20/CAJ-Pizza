@@ -2,9 +2,14 @@ package pizzas;
 
 /**
  * Évaluation laissée par un client sur une pizza.
- * Une évaluation est définie par une note entre 0 et 5 et un commentaire textuel optionnel.
+ * Une évaluation est définie par son auteur, une note entre 0 et 5 et un commentaire textuel optionnel.
  */
 public class Evaluation {
+
+    /**
+     * Auteur de l'évaluation
+     */
+    private final InformationPersonnelle auteur;
 
     /**
      * Note de l'évaluation (comprise entre 0 et 5).
@@ -12,7 +17,7 @@ public class Evaluation {
     private final double note;
 
     /**
-     * Commentaire optionnel..
+     * Commentaire optionnel.
      */
     private final String commentaire;
 
@@ -22,10 +27,11 @@ public class Evaluation {
      * @param note la note attribuée (entière ou décimale) entre 0 et 5 inclus
      * @throws IllegalArgumentException si la note n'est pas comprise entre 0 et 5
      */
-    public Evaluation(double note) {
+    public Evaluation(InformationPersonnelle auteur, double note) {
         if (note >= 0 && note <= 5) {
             this.note = note;
             this.commentaire = null;
+            this.auteur = auteur;
         } else {
             throw new IllegalArgumentException("Une note doit être comprise entre 0 et 5");
         }
@@ -38,7 +44,7 @@ public class Evaluation {
      * @param commentaire un commentaire non nul et non vide
      * @throws IllegalArgumentException si la note n'est pas valide ou si le commentaire est invalide
      */
-    public Evaluation(double note, String commentaire) {
+    public Evaluation(InformationPersonnelle auteur, double note, String commentaire) {
         if (note < 0 || note > 5) {
             throw new IllegalArgumentException("Une note doit être comprise entre 0 et 5");
         }
@@ -47,6 +53,7 @@ public class Evaluation {
         }
         this.note = note;
         this.commentaire = commentaire;
+        this.auteur = auteur;
     }
 
     /**

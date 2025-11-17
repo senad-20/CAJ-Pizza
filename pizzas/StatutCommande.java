@@ -14,7 +14,7 @@ public enum StatutCommande {
     /**
      * Commande créée par le client (modifiable).
      */
-    CREEE,
+    CREE,
 
     /**
      * Commande validée par le client (non modifiable).

@@ -36,7 +36,7 @@ public class Pizza {
     /**
      * Liste des évaluations données à la pizza.
      */
-    private final List<Evaluation> evaluations;
+    private final Set<Evaluation> evaluations;
 
     /**
      * Chemin vers une photo représentant la pizza.
@@ -60,7 +60,7 @@ public class Pizza {
         this.ingredients = new HashSet<>();
         this.prixfixe = -1;
         this.photo = null;
-        this.evaluations = new ArrayList<>();
+        this.evaluations = new HashSet<>();
     }
 
     /**
@@ -105,7 +105,7 @@ public class Pizza {
      *
      * @return la liste des évaluations
      */
-    public List<Evaluation> getEvaluations() {
+    public Set<Evaluation> getEvaluations() {
         return this.evaluations;
     }
 
