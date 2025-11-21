@@ -10,16 +10,16 @@ public enum TypePizza {
   /**
    * Pizzas classiques à la viande : reine, pepperoni, bolognaise...
    */
-  Viande,
+  VIANDE,
   
   /**
    * Pizzas végétariennes : quatre fromages, vegan aux légumes...
    */
-  Vegetarienne,
+  VEGETARIENNE,
   
   /**
    * Pizzas composées d'ingrédients régionaux : bretonne aux noix de
    * Saint-Jacques, landaise au canard, savoyarde au reblochon...
    */
-  Regionale,
+  REGIONALE,
 }
