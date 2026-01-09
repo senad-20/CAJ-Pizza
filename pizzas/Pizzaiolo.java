@@ -24,11 +24,15 @@ import java.util.stream.Collectors;
  */
 public class Pizzaiolo implements InterPizzaiolo, InterClient {
 
+    public Object getClientConnecte() {
+        return clientConnecte;
+    }
+
     /**
      * Représente un compte client interne à la pizzeria.
      * Contient l'email, le mot de passe et les informations personnelles.
      */
-    private static class Client {
+    public static class Client {
 
         /** Informations personnelles du client. */
         private final InformationPersonnelle info;
@@ -57,7 +61,7 @@ public class Pizzaiolo implements InterPizzaiolo, InterClient {
          *
          * @return les informations personnelles
          */
-        InformationPersonnelle getInfo() {
+        public InformationPersonnelle getInfo() {
             return info;
         }
 
@@ -795,5 +799,10 @@ public class Pizzaiolo implements InterPizzaiolo, InterClient {
         return pizzas.stream()
                 .sorted(Comparator.comparingInt(this::nombrePizzasCommandees).reversed())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Set<Ingredient> getTousIngredients() {
+        return new HashSet<>(ingredients.values());
     }
 }

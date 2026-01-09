@@ -264,4 +264,10 @@ public interface InterPizzaiolo {
    *         est vide si aucune pizza n'est en vente)
    */
   List<Pizza> classementPizzasParNombreCommandes();
+  /**
+   * Retourne l'ensemble de tous les ingrédients créés.
+   *
+   * @return l'ensemble des ingrédients
+   */
+  Set<Ingredient> getTousIngredients();
 }
