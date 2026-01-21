@@ -1,5 +1,6 @@
 package pizzas;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
  * Une commande est définie par sa date, la liste des pizzas sélectionnées,
  * le client correspondant, et son statut (créée, validée, traitée).
  */
-public class Commande {
+public class Commande implements Serializable {
 
     /**
      * Date et heure de création de la commande.

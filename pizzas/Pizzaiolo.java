@@ -22,7 +22,8 @@ import java.util.stream.Collectors;
  *     <li>les filtres de recherche de pizzas.</li>
  * </ul>
  */
-public class Pizzaiolo implements InterPizzaiolo, InterClient {
+public class Pizzaiolo implements InterPizzaiolo, InterClient, java.io.Serializable {
+    private static final long serialVersionUID = 1L;
 
     public Object getClientConnecte() {
         return clientConnecte;

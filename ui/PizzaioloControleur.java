@@ -7,186 +7,392 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import pizzas.*;
+
 import java.io.File;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 
 public class PizzaioloControleur {
 
-    private final Pizzaiolo systeme = new Pizzaiolo();
+    private final Pizzaiolo systeme = MainInterface.SYSTEME;
     private Pizza pizzaSelectionnee;
     private Ingredient ingredientSelectionne;
     private InformationPersonnelle clientSelectionne;
+    private Commande commandeSelectionnee;
 
     @FXML private ChoiceBox<TypePizza> choiceBoxTypeIngredient;
     @FXML private ChoiceBox<TypePizza> choiceBoxTypePizza;
-    @FXML private TextField entreeBeneficeParClient, entreeBeneficeParPizza, entreeBeneficeTotalCommandes;
-    @FXML private TextField entreeBeneficeTotalToutesCommandes, entreeNbCommandesClient, entreeNbCommandesPizza;
-    @FXML private TextField entreeNbTotalCommandes, entreeNomIngredient, entreeNomPizza, entreePhotoPizza;
-    @FXML private TextField entreePrixIngredient, entreePrixMinimalPizza, entreePrixVentePizza;
-    @FXML private Label labelListeCommandes, labelListeIngredients, labelListePizzas;
-    @FXML private ListView<String> listeClients, listeCommandes, listeIngredients, listePizzas;
+
+    @FXML private TextField entreeNomIngredient;
+    @FXML private TextField entreePrixIngredient;
+
+    @FXML private TextField entreeNomPizza;
+    @FXML private TextField entreePrixMinimalPizza;
+    @FXML private TextField entreePrixVentePizza;
+    @FXML private TextField entreePhotoPizza;
+    @FXML private TextField entreeBeneficeUnitairePizza;
+    @FXML private TextField entreeNbCommandesPizza;
+    @FXML private TextField entreeBeneficeTotalPizza;
+
+    @FXML private TextField entreeNombreTotalCommandes;
+    @FXML private TextField entreeBeneficeTotalCommandes;
+    @FXML private TextField entreeNbPizzasClient;
+    @FXML private TextField entreeBeneficeClient;
+    @FXML private TextField entreeBeneficeCommande;
+
+    @FXML private Label labelListeIngredients;
+    @FXML private Label labelListePizzas;
+    @FXML private Label labelListeCommandes;
+
+    @FXML private ListView<String> listeIngredients;
+    @FXML private ListView<String> listePizzas;
+    @FXML private ListView<String> listeCommandes;
+
+    @FXML private ComboBox<String> comboBoxClients;
 
     @FXML
     void initialize() {
         choiceBoxTypeIngredient.getItems().setAll(TypePizza.values());
         choiceBoxTypePizza.getItems().setAll(TypePizza.values());
-        
-        rafraichirToutesListes();
+        rafraichirTout();
     }
 
-    // --- 2.1 PARTIE INGRÉDIENTS ---
     @FXML
-    void actionBoutonAfficherTousIngredients(ActionEvent event) {
+    void actionBoutonAfficherTousIngredients(ActionEvent e) {
         majListeIngredients(systeme.getTousIngredients(), "Tous les ingrédients");
     }
 
     @FXML
-    void actionBoutonCreerIngredient(ActionEvent event) {
+    void actionBoutonCreerIngredient(ActionEvent e) {
         try {
-            String nom = entreeNomIngredient.getText();
-            double prix = Double.parseDouble(entreePrixIngredient.getText());
-            int res = systeme.creerIngredient(nom, prix);
-            if (res == 0) actionBoutonAfficherTousIngredients(null);
-            else afficherAlerte("Erreur", "Ingrédient déjà existant ou données invalides.");
-        } catch (Exception e) { afficherAlerte("Erreur", "Prix invalide."); }
-    }
-
-    @FXML
-    void actionBoutonInterdireType(ActionEvent event) {
-        if (ingredientSelectionne != null && choiceBoxTypeIngredient.getValue() != null) {
-            systeme.interdireIngredient(ingredientSelectionne.getNom(), choiceBoxTypeIngredient.getValue());
-            afficherAlerte("Succès", "Ingrédient interdit pour ce type.");
+            systeme.creerIngredient(entreeNomIngredient.getText(), Double.parseDouble(entreePrixIngredient.getText()));
+            actionBoutonAfficherTousIngredients(null);
+        } catch (Exception ex) {
+            afficherAlerte("Erreur", "Création impossible");
         }
     }
 
     @FXML
-    void actionSelectionIngredient(MouseEvent event) {
+    void actionBoutonModifierPrixIngredient(ActionEvent e) {
+        try {
+            if (ingredientSelectionne == null) return;
+            systeme.changerPrixIngredient(ingredientSelectionne.getNom(), Double.parseDouble(entreePrixIngredient.getText()));
+            actionBoutonAfficherTousIngredients(null);
+        } catch (Exception ex) {
+            afficherAlerte("Erreur", "Modification impossible");
+        }
+    }
+
+    @FXML
+    void actionBoutonInterdireIngredient(ActionEvent e) {
+        if (ingredientSelectionne != null && choiceBoxTypeIngredient.getValue() != null) {
+            systeme.interdireIngredient(ingredientSelectionne.getNom(), choiceBoxTypeIngredient.getValue());
+        }
+    }
+
+    @FXML
+    void actionListeSelectionIngredient(MouseEvent e) {
         String nom = listeIngredients.getSelectionModel().getSelectedItem();
         ingredientSelectionne = systeme.getTousIngredients().stream()
-                .filter(i -> i.getNom().equals(nom)).findFirst().orElse(null);
+                .filter(i -> i.getNom().equals(nom))
+                .findFirst()
+                .orElse(null);
         if (ingredientSelectionne != null) {
             entreeNomIngredient.setText(ingredientSelectionne.getNom());
             entreePrixIngredient.setText(String.valueOf(ingredientSelectionne.getPrix()));
         }
     }
 
-    // --- 2.2 PARTIE PIZZAS ---
     @FXML
-    void actionBoutonCreerNouvellePizza(ActionEvent event) {
+    void actionBoutonAfficherToutesPizzas(ActionEvent e) {
+        labelListePizzas.setText("Toutes les pizzas");
+        listePizzas.getItems().setAll(systeme.getPizzas().stream().map(Pizza::getNom).toList());
+    }
+
+    @FXML
+    void actionBoutonCreerPizza(ActionEvent e) {
         Pizza p = systeme.creerPizza(entreeNomPizza.getText(), choiceBoxTypePizza.getValue());
-        if (p != null) rafraichirToutesListes();
-        else afficherAlerte("Erreur", "Nom déjà pris ou type non sélectionné.");
+        if (p != null) actionBoutonAfficherToutesPizzas(null);
     }
 
     @FXML
-    void actionBoutonAjouterIngredientPizza(ActionEvent event) {
+    void actionBoutonAjouterIngredientPizza(ActionEvent e) {
         if (pizzaSelectionnee != null && ingredientSelectionne != null) {
-            int res = systeme.ajouterIngredientPizza(pizzaSelectionnee, ingredientSelectionne.getNom());
-            if (res == -3) afficherAlerte("Erreur", "Ingrédient interdit pour ce type de pizza !");
-            else if (res < 0) afficherAlerte("Erreur", "Erreur lors de l'ajout.");
-            else selectionnerPizza(pizzaSelectionnee);
+            systeme.ajouterIngredientPizza(pizzaSelectionnee, ingredientSelectionne.getNom());
+            selectionnerPizza(pizzaSelectionnee);
         }
     }
 
     @FXML
-    void actionBoutonParcourirPhoto(ActionEvent event) {
+    void actionBoutonSupprimerIngredientPizza(ActionEvent e) {
+        if (pizzaSelectionnee != null && ingredientSelectionne != null) {
+            systeme.retirerIngredientPizza(pizzaSelectionnee, ingredientSelectionne.getNom());
+            selectionnerPizza(pizzaSelectionnee);
+        }
+    }
+
+    @FXML
+    void actionBoutonVerifierValiditeIngredientsPizza(ActionEvent e) {
         if (pizzaSelectionnee == null) return;
-        FileChooser fc = new FileChooser();
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.jpg", "*.png", "*.gif"));
-        File file = fc.showOpenDialog(null);
-        if (file != null) {
-            try {
-                systeme.ajouterPhoto(pizzaSelectionnee, file.getAbsolutePath());
-                entreePhotoPizza.setText(file.getName());
-            } catch (Exception e) { afficherAlerte("Erreur", "Impossible de charger l'image."); }
+        Set<String> invalides = systeme.verifierIngredientsPizza(pizzaSelectionnee);
+        labelListeIngredients.setText("Ingrédients invalides");
+        listeIngredients.getItems().setAll(invalides);
+    }
+
+    @FXML
+    void actionBoutonModifierPrixPizza(ActionEvent e) {
+        try {
+            if (pizzaSelectionnee == null) return;
+            systeme.setPrixPizza(pizzaSelectionnee, Double.parseDouble(entreePrixVentePizza.getText()));
+            selectionnerPizza(pizzaSelectionnee);
+        } catch (Exception ex) {
+            afficherAlerte("Erreur", "Prix invalide");
         }
     }
 
     @FXML
-    void actionSelectionPizza(MouseEvent event) {
+    void actionBoutonParcourirPhotoPizza(ActionEvent e) {
+        if (pizzaSelectionnee == null) return;
+
+        FileChooser fc = new FileChooser();
+        File f = fc.showOpenDialog(null);
+        if (f == null) return;
+
+        try {
+            boolean ok = systeme.ajouterPhoto(pizzaSelectionnee, f.getAbsolutePath());
+            if (!ok) {
+                afficherAlerte("Erreur", "Image invalide");
+                return;
+            }
+            entreePhotoPizza.setText(f.getName());
+        } catch (IOException ex) {
+            afficherAlerte("Erreur", "Impossible de charger l'image");
+        }
+    }
+
+    @FXML
+    void actionListeSelectionPizza(MouseEvent e) {
         String nom = listePizzas.getSelectionModel().getSelectedItem();
-        pizzaSelectionnee = systeme.getPizzas().stream()
-                .filter(p -> p.getNom().equals(nom)).findFirst().orElse(null);
+        pizzaSelectionnee = systeme.getPizzas().stream().filter(p -> p.getNom().equals(nom)).findFirst().orElse(null);
         if (pizzaSelectionnee != null) selectionnerPizza(pizzaSelectionnee);
     }
 
-    private void selectionnerPizza(Pizza p) {
-        entreeNomPizza.setText(p.getNom());
-        entreePrixVentePizza.setText(String.valueOf(systeme.getPrixPizza(p)));
-        entreePrixMinimalPizza.setText(String.valueOf(systeme.calculerPrixMinimalPizza(p)));
-        entreeNbCommandesPizza.setText(String.valueOf(systeme.nombrePizzasCommandees(p)));
-        
-        majListeIngredients(p.getIngredients(), "Ingrédients de " + p.getNom());
-    }
-
-    // --- 2.3 PARTIE COMMANDES & STATS ---
     @FXML
-    void actionBoutonCommandesNonTraitees(ActionEvent event) {
-        List<Commande> nonTraitees = systeme.commandeNonTraitees();
-        majListeCommandes(nonTraitees, "Nouvelles commandes validées (marquées comme traitées)");
-        majStatistiquesGlobales();
+    void actionBoutonCommandesNonTraitees(ActionEvent e) {
+        List<Commande> cmds = systeme.commandeNonTraitees();
+        majListeCommandes(cmds, "Commandes non traitées");
+        majStats();
     }
 
     @FXML
-    void actionBoutonClassementPizzas(ActionEvent event) {
-        List<Pizza> classement = systeme.classementPizzasParNombreCommandes();
-        labelListePizzas.setText("Pizzas triées par succès");
-        listePizzas.getItems().setAll(classement.stream().map(Pizza::getNom).collect(Collectors.toList()));
+    void actionBoutonCommandesDejaTraitees(ActionEvent e) {
+        majListeCommandes(systeme.commandesDejaTraitees(), "Commandes traitées");
+        majStats();
     }
 
     @FXML
-    void actionSelectionClient(MouseEvent event) {
-        String desc = listeClients.getSelectionModel().getSelectedItem();
-        clientSelectionne = systeme.ensembleClients().stream()
-                .filter(c -> c.toString().equals(desc)).findFirst().orElse(null);
-        if (clientSelectionne != null) {
-            Map<InformationPersonnelle, Integer> nbPizzas = systeme.nombrePizzasCommandeesParClient();
-            entreeNbCommandesClient.setText(String.valueOf(nbPizzas.getOrDefault(clientSelectionne, 0)));
-            entreeBeneficeParClient.setText(String.format("%.2f", systeme.beneficeParClient().getOrDefault(clientSelectionne, 0.0)));
+    void actionListeSelectionCommande(MouseEvent e) {
+        String sel = listeCommandes.getSelectionModel().getSelectedItem();
+        commandeSelectionnee = systeme.commandesDejaTraitees().stream()
+                .filter(c -> c.toString().equals(sel))
+                .findFirst()
+                .orElse(null);
+        if (commandeSelectionnee != null) {
+            entreeBeneficeCommande.setText(String.format("%.2f", systeme.beneficeCommandes(commandeSelectionnee)));
         }
     }
 
-    // --- 2.4 MENU ---
     @FXML
-    void actionMenuQuitter(ActionEvent event) {
+    void actionSelectionClient(ActionEvent e) {
+        String sel = comboBoxClients.getValue();
+        clientSelectionne = systeme.ensembleClients().stream()
+                .filter(c -> c.toString().equals(sel))
+                .findFirst()
+                .orElse(null);
+        if (clientSelectionne != null) {
+            entreeNbPizzasClient.setText(String.valueOf(systeme.nombrePizzasCommandeesParClient().getOrDefault(clientSelectionne, 0)));
+            entreeBeneficeClient.setText(String.format("%.2f", systeme.beneficeParClient().getOrDefault(clientSelectionne, 0.0)));
+        }
+    }
+
+    @FXML
+    void actionBoutonAfficherListeTrieePizzas(ActionEvent e) {
+        labelListePizzas.setText("Classement des pizzas");
+        listePizzas.getItems().setAll(systeme.classementPizzasParNombreCommandes().stream().map(Pizza::getNom).toList());
+    }
+
+    @FXML
+    void actionMenuQuitter(ActionEvent e) {
         Platform.exit();
     }
 
     @FXML
-    void actionMenuAPropos(ActionEvent event) {
-        afficherAlerte("A propos", "Cariou's Pizza - L'application préférée des gourmets !");
+    void actionMenuApropos(ActionEvent e) {
+        afficherAlerte("À propos", "Application Pizza - JavaFX");
     }
 
-    // --- OUTILS ---
-    private void rafraichirToutesListes() {
-        listePizzas.getItems().setAll(systeme.getPizzas().stream().map(Pizza::getNom).collect(Collectors.toList()));
-        listeClients.getItems().setAll(systeme.ensembleClients().stream().map(InformationPersonnelle::toString).collect(Collectors.toList()));
-        majStatistiquesGlobales();
+    private void selectionnerPizza(Pizza p) {
+        entreeNomPizza.setText(p.getNom());
+
+        double prixMinimal = systeme.calculerPrixMinimalPizza(p);
+        double prixVente = systeme.getPrixPizza(p);
+
+        entreePrixMinimalPizza.setText(String.format("%.2f", prixMinimal));
+        entreePrixVentePizza.setText(String.format("%.2f", prixVente));
+
+        double beneficeUnitaire = systeme.beneficeParPizza()
+                .getOrDefault(p, 0.0);
+
+        int nbCommandes = systeme.nombrePizzasCommandees(p);
+
+        entreeBeneficeUnitairePizza.setText(String.format("%.2f", beneficeUnitaire));
+        entreeNbCommandesPizza.setText(String.valueOf(nbCommandes));
+        entreeBeneficeTotalPizza.setText(
+                String.format("%.2f", beneficeUnitaire * nbCommandes)
+        );
+
+        majListeIngredients(p.getIngredients(), "Ingrédients de la pizza");
     }
 
-    private void majStatistiquesGlobales() {
-        entreeNbTotalCommandes.setText(String.valueOf(systeme.commandesDejaTraitees().size()));
-        entreeBeneficeTotalToutesCommandes.setText(String.format("%.2f", systeme.beneficeToutesCommandes()));
+    private void rafraichirTout() {
+        actionBoutonAfficherToutesPizzas(null);
+        comboBoxClients.getItems().setAll(systeme.ensembleClients().stream().map(Object::toString).toList());
+        majStats();
     }
 
-    private void majListeIngredients(Set<Ingredient> ings, String label) {
+    private void majStats() {
+        entreeNombreTotalCommandes.setText(String.valueOf(systeme.commandesDejaTraitees().size()));
+        entreeBeneficeTotalCommandes.setText(String.format("%.2f", systeme.beneficeToutesCommandes()));
+    }
+
+    private void majListeIngredients(Set<Ingredient> set, String label) {
         labelListeIngredients.setText(label);
-        listeIngredients.getItems().setAll(ings.stream().map(Ingredient::getNom).collect(Collectors.toList()));
+        listeIngredients.getItems().setAll(set.stream().map(Ingredient::getNom).toList());
     }
 
     private void majListeCommandes(List<Commande> cmds, String label) {
         labelListeCommandes.setText(label);
-        listeCommandes.getItems().setAll(cmds.stream().map(Commande::toString).collect(Collectors.toList()));
+        listeCommandes.getItems().setAll(cmds.stream().map(Commande::toString).toList());
     }
 
-    private void afficherAlerte(String titre, String msg) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titre);
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
+    private void afficherAlerte(String t, String m) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setTitle(t);
+        a.setHeaderText(null);
+        a.setContentText(m);
+        a.showAndWait();
     }
+    @FXML
+    void actionMenuSauvegarder(ActionEvent event) {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Sauvegarder la pizzeria");
+        fc.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Fichier pizzeria", "*.pizza")
+        );
+
+        File f = fc.showSaveDialog(null);
+        if (f == null) return;
+
+        try (ObjectOutputStream oos =
+                     new ObjectOutputStream(new FileOutputStream(f))) {
+            oos.writeObject(systeme);
+            afficherAlerte("Succès", "Sauvegarde effectuée");
+        } catch (Exception e) {
+            afficherAlerte("Erreur", "Impossible de sauvegarder");
+        }
+    }
+
+    private void rafraichirToutesListes() {
+        labelListePizzas.setText("Toutes les pizzas");
+        listePizzas.getItems().setAll(
+                systeme.getPizzas().stream()
+                        .map(Pizza::getNom)
+                        .toList()
+        );
+
+        labelListeIngredients.setText("Tous les ingrédients");
+        listeIngredients.getItems().setAll(
+                systeme.getTousIngredients().stream()
+                        .map(Ingredient::getNom)
+                        .toList()
+        );
+
+        labelListeCommandes.setText("Commandes");
+        listeCommandes.getItems().clear();
+
+        comboBoxClients.getItems().setAll(
+                systeme.ensembleClients().stream()
+                        .map(InformationPersonnelle::toString)
+                        .toList()
+        );
+
+        entreeNombreTotalCommandes.setText(
+                String.valueOf(systeme.commandesDejaTraitees().size())
+        );
+        entreeBeneficeTotalCommandes.setText(
+                String.format("%.2f", systeme.beneficeToutesCommandes())
+        );
+    }
+
+    @FXML
+    void actionMenuCharger(ActionEvent event) {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Charger une pizzeria");
+        fc.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Fichier pizzeria", "*.pizza")
+        );
+
+        File f = fc.showOpenDialog(null);
+        if (f == null) return;
+
+        try (ObjectInputStream ois =
+                     new ObjectInputStream(new FileInputStream(f))) {
+
+            Pizzaiolo charge = (Pizzaiolo) ois.readObject();
+            copierEtat(charge);
+
+            rafraichirToutesListes();
+            afficherAlerte("Succès", "Chargement effectué");
+
+        } catch (Exception e) {
+            afficherAlerte("Erreur", "Impossible de charger");
+        }
+    }
+    private void copierEtat(Pizzaiolo autre) {
+        try {
+            java.lang.reflect.Field[] champs = Pizzaiolo.class.getDeclaredFields();
+            for (var f : champs) {
+                f.setAccessible(true);
+                f.set(systeme, f.get(autre));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @FXML
+    void actionBoutonCommandesTraiteesClient(ActionEvent event) {
+        if (clientSelectionne == null) {
+            afficherAlerte("Erreur", "Veuillez sélectionner un client");
+            return;
+        }
+
+        List<Commande> cmds = systeme.commandesTraiteesClient(clientSelectionne);
+        if (cmds == null) {
+            afficherAlerte("Erreur", "Aucune commande pour ce client");
+            return;
+        }
+
+        majListeCommandes(cmds, "Commandes traitées du client");
+    }
+
+
+
 }

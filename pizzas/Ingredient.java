@@ -1,10 +1,12 @@
 package pizzas;
 
+import java.io.Serializable;
+
 /**
  * Représente un ingrédient utilisé dans la création d'une pizza.
  * Un ingrédient est défini par un nom non vide et un prix non négatif.
  */
-public class Ingredient {
+public class Ingredient implements Serializable {
 
     /**
      * Nom de l'ingrédient.

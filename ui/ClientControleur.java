@@ -6,6 +6,9 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import pizzas.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import java.io.File;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -234,7 +237,8 @@ public class ClientControleur {
   void actionBoutonAppliquerFiltreContientngredient(ActionEvent event) {
     String ingr = entreeFiltreContientIngredient.getText();
     if (ingr == null || ingr.isBlank()) return;
-    systeme.ajouterFiltreIngredient(ingr);
+
+    systeme.ajouterFiltre(ingr);
     majListePizzas(systeme.selectionPizzaFiltres(), "Filtre ingrédient");
   }
 
@@ -242,9 +246,11 @@ public class ClientControleur {
   void actionBoutonAppliquerFiltrePrixMax(ActionEvent event) {
     try {
       double prix = Double.parseDouble(entreeFiltrePrixMax.getText());
-      systeme.ajouterFiltrePrixMax(prix);
-      majListePizzas(systeme.selectionPizzaFiltres(), "Filtre prix");
-    } catch (Exception ignored) {}
+      systeme.ajouterFiltre(prix);
+      majListePizzas(systeme.selectionPizzaFiltres(), "Filtre prix max");
+    } catch (Exception e) {
+      afficherAlerte("Erreur", "Prix invalide");
+    }
   }
 
   @FXML
@@ -302,4 +308,20 @@ public class ClientControleur {
     a.setContentText(message);
     a.showAndWait();
   }
+  private void afficherPhotoPizza(Pizza p) {
+    panePhotoPizza.getChildren().clear();
+
+    if (p == null || p.getPhoto() == null) return;
+
+    File f = new File(p.getPhoto());
+    if (!f.exists()) return;
+
+    ImageView iv = new ImageView(new Image(f.toURI().toString()));
+    iv.setPreserveRatio(true);
+    iv.setFitWidth(180);
+    iv.setFitHeight(120);
+
+    panePhotoPizza.getChildren().add(iv);
+  }
+
 }

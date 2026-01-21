@@ -1,5 +1,6 @@
 package pizzas;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Objects;
  * Une évaluation est définie par un auteur, une note comprise entre 0 et 5
  * et un commentaire optionnel.
  */
-public class Evaluation {
+public class Evaluation implements Serializable {
 
     /**
      * Auteur de l'évaluation.

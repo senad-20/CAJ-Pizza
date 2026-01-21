@@ -1,5 +1,6 @@
 package pizzas;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.Set;
  * Une pizza est définie par un nom, un type, un ensemble d'ingrédients,
  * un prix fixé (éventuellement non initialisé) et une liste d'évaluations.
  */
-public class Pizza {
+public class Pizza implements Serializable {
 
     /**
      * Nom de la pizza.
@@ -99,6 +100,8 @@ public class Pizza {
     public double getPrixfixe() {
         return this.prixfixe;
     }
+
+
 
     /**
      * Retourne la liste des évaluations associées à la pizza.
@@ -193,4 +196,7 @@ public class Pizza {
         return nom.hashCode();
     }
 
+    public String getPhoto() {
+        return photo;
+    }
 }
